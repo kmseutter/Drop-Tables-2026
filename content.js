@@ -1,9 +1,27 @@
 (function () {
 
-  const DELAY_SECONDS = 5;
+  if (window.doomstopperTimerSet) return;
+  window.doomstopperTimerSet = true;
+
+  let quizzes = [];
+
+  async function loadQuizzes() {
+    try {
+      const url = chrome.runtime.getURL('quiz.json');
+      const response = await fetch(url);
+      const data = await response.json();
+      quizzes = data.quizzes || [];
+    } catch (err) {
+      console.error('Doomstopper failed to load quiz.json:', err);
+    }
+  }
 
   function showOverlay() {
     if (document.getElementById('my-ext-overlay-host')) return;
+
+    const quiz = quizzes.length > 0
+      ? quizzes[Math.floor(Math.random() * quizzes.length)]
+      : { question: "Quizzes haven't loaded yet. Continue?", choices: ["Yes"], answer: 0 };
 
     const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalBodyOverflow = document.body.style.overflow;
@@ -22,6 +40,7 @@
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
       host.remove();
+      chrome.runtime.sendMessage({ action: "RESET_TIMER" });
     }
 
     const host = document.createElement('div');
@@ -42,6 +61,10 @@
 
     const shadow = host.attachShadow({ mode: 'open' });
 
+    const choicesHTML = quiz.choices
+      .map((choice, index) => `<button class="choice-btn" data-index="${index}">${choice}</button>`)
+      .join('');
+
     shadow.innerHTML = `
       <style>
         .overlay-box {
@@ -53,6 +76,53 @@
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
           width: 300px;
           text-align: center;
+        }
+          .title {
+          font-weight: bold;
+          font-size: 14px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #a6adc8;
+          margin-bottom: 8px;
+        }
+        .question {
+          font-size: 18px;
+          font-weight: 600;
+          margin-bottom: 16px;
+        }
+        .choices {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+          .choice-btn {
+          background: #313244;
+          border: 1px solid #45475a;
+          color: #ffffff;
+          padding: 10px 14px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 14px;
+          transition: background 0.15s;
+        }
+        .choice-btn:hover {
+          background: #45475a;
+        }
+        .choice-btn.wrong {
+          background: #f38ba8;
+          color: #11111b;
+          border-color: #f38ba8;
+        }
+        .choice-btn.correct {
+          background: #a6e3a1;
+          color: #11111b;
+          border-color: #a6e3a1;
+        }
+        .feedback {
+          margin-top: 12px;
+          font-size: 13px;
+          min-height: 18px;
+          color: #f38ba8;
         }
         .header {
           display: flex;
@@ -75,18 +145,37 @@
       <div class="overlay-box">
         <div class="header">
           <span>Doomstopper</span>
-          <button id="close-btn">&times;</button>
         </div>
-        <p style="margin: 0; font-size: 14px;">
-          You've been on this page for ${DELAY_SECONDS} seconds.</p>
         <p>Answer the following question to continue:</p>
-        <p>What is your favourite colour?</p>
+        <div class="question">${quiz.question}</div>
+        <div class="choices">${choicesHTML}</div>
+        <div class="feedback" id="feedback"></div>
       </div>
     `;
 
-    shadow.getElementById('close-btn').addEventListener('click', closeOverlay);
+    const buttons = shadow.querySelectorAll('.choice-btn');
+    const feedback = shadow.getElementById('feedback');
+
+    buttons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const selectedIndex = Number(btn.getAttribute('data-index'));
+
+        if (selectedIndex === quiz.answer) {
+          btn.classList.add('correct');
+          feedback.style.color = '#25b618';
+          feedback.textContent = 'Correct! Resuming...';
+          setTimeout(closeOverlay, 600);
+        } else {
+          btn.classList.add('wrong');
+          feedback.textContent = 'Wrong answer — try again!';
+        }
+      });
+    });
+
     document.body.appendChild(host);
   }
+
+  loadQuizzes();
 
   chrome.runtime.onMessage.addListener((message) => {
     if (message.action === "SHOW_DOOMSTOPPER") {
