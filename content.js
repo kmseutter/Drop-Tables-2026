@@ -1,15 +1,6 @@
 (function () {
 
   const DELAY_SECONDS = 5;
-  if (window.doomstopperTimerSet) return;
-  window.doomstopperTimerSet = true;
-
-  let timerId = null;
-
-  function startTimer() {
-    clearTimeout(timerId);
-    timerId = setTimeout(showOverlay, DELAY_SECONDS * 1000);
-  }
 
   function showOverlay() {
     if (document.getElementById('my-ext-overlay-host')) return;
@@ -31,8 +22,6 @@
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
       host.remove();
-
-      startTimer();
     }
 
     const host = document.createElement('div');
@@ -99,5 +88,9 @@
     document.body.appendChild(host);
   }
 
-  startTimer();
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "SHOW_DOOMSTOPPER") {
+      showOverlay();
+    }
+  });
 })();

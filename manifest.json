@@ -7,6 +7,13 @@
     "default_icon": "d.png",
     "default_popup": "hello.html"
   },
+  "permissions": [
+    "alarms",
+    "tabs"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
       "matches": ["https://*.wikipedia.org/*", "https://*.tiktok.com/*"],
