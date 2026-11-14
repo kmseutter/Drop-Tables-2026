@@ -1,10 +1,10 @@
 (function () {
 
-  const DELAY_SECONDS = 5;
+  // const DELAY_SECONDS = 5;
   if (window.doomstopperTimerSet) return;
   window.doomstopperTimerSet = true;
 
-  let timerId = null;
+  // let timerId = null;
   let quizzes = [];
 
   async function loadQuizzes() {
@@ -17,11 +17,11 @@
       console.error('Doomstopper failed to load quiz.json:', err);
     }
   }
-  
-  function startTimer() {
-    clearTimeout(timerId);
-    timerId = setTimeout(showOverlay, DELAY_SECONDS * 1000);
-  }
+
+  // function startTimer() {
+  //   clearTimeout(timerId);
+  //   timerId = setTimeout(showOverlay, DELAY_SECONDS * 1000);
+  // }
 
   function showOverlay() {
     if (document.getElementById('my-ext-overlay-host')) return;
@@ -47,8 +47,6 @@
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
       host.remove();
-
-      startTimer();
     }
 
     const host = document.createElement('div');
@@ -154,8 +152,6 @@
         <div class="header">
           <span>Doomstopper</span>
         </div>
-        <p style="margin: 0; font-size: 14px;">
-          You've been on this page for ${DELAY_SECONDS} seconds.</p>
         <p>Answer the following question to continue:</p>
         <div class="question">${quiz.question}</div>
         <div class="choices">${choicesHTML}</div>
@@ -185,5 +181,11 @@
     document.body.appendChild(host);
   }
 
-  loadQuizzes().then(startTimer);
+  loadQuizzes();
+
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.action === "SHOW_DOOMSTOPPER") {
+      showOverlay();
+    }
+  });
 })();
