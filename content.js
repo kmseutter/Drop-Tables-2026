@@ -1,6 +1,17 @@
 (function() {
   if (document.getElementById('my-ext-overlay-host')) return;
 
+  const originalHtmlOverflow = document.documentElement.style.overflow;
+  const originalBodyOverflow = document.body.style.overflow;
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+
+  function closeOverlay() {
+    document.documentElement.style.overflow = originalHtmlOverflow;
+    document.body.style.overflow = originalBodyOverflow;
+    host.remove();
+  }
+
   const host = document.createElement('div');
   host.id = 'my-ext-overlay-host';
   
@@ -58,9 +69,7 @@
     </div>
   `;
 
-  shadow.getElementById('close-btn').addEventListener('click', () => {
-    host.remove();
-  });
+  shadow.getElementById('close-btn').addEventListener('click', closeOverlay);
 
   document.body.appendChild(host);
 })();
