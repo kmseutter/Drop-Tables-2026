@@ -1,10 +1,16 @@
 {
-  "name": "Hello extensions of the world!",
+  "name": "Doomstopper",
   "description": "A minimal extension that opens a popup saying Hello Extensions when you click its toolbar icon.",
   "version": "1.0",
   "manifest_version": 3,
   "action": {
-    "default_popup": "hello.html",
-    "default_icon": "d.png"
-  }
+    "default_icon": "d.png",
+    "default_popup": "hello.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
 }
