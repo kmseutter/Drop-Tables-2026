@@ -5,8 +5,8 @@ async function createAlarm() {
 
   if (!existingAlarm) {
     await chrome.alarms.create(ALARM_NAME, {
-      delayInMinutes: 0.5,
-      periodInMinutes: 0.5
+      delayInMinutes: 10 / 60,
+      periodInMinutes: 10 / 60
     });
   }
 }
