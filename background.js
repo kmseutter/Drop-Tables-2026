@@ -1,35 +1,34 @@
-const ALARM_NAME = "doomstopper-interruption";
+const DELAY_SECONDS = 5;
+let timerId = null;
 
-async function createAlarm() {
-  const existingAlarm = await chrome.alarms.get(ALARM_NAME);
-
-  if (!existingAlarm) {
-    await chrome.alarms.create(ALARM_NAME, {
-      delayInMinutes: 5 / 60,
-      periodInMinutes: 5 / 60
+function startTimer() {
+  clearTimeout(timerId);
+  timerId = setTimeout(async () => {
+    const [tab] = await chrome.tabs.query({
+      active: true,
+      lastFocusedWindow: true
     });
-  }
+
+    if (!tab?.id) {
+      startTimer();
+      return;
+    }
+
+    try {
+      await chrome.tabs.sendMessage(tab.id, {
+        action: "SHOW_DOOMSTOPPER"
+      });
+    } catch (error) {
+      startTimer();
+    }
+  }, DELAY_SECONDS * 1000);
 }
 
-chrome.runtime.onInstalled.addListener(createAlarm);
-chrome.runtime.onStartup.addListener(createAlarm);
+chrome.runtime.onInstalled.addListener(startTimer);
+chrome.runtime.onStartup.addListener(startTimer);
 
-chrome.alarms.onAlarm.addListener(async (alarm) => {
-  if (alarm.name !== ALARM_NAME) return;
-
-  const [tab] = await chrome.tabs.query({
-    active: true,
-    lastFocusedWindow: true
-  });
-
-  if (!tab?.id) return;
-
-  try {
-    await chrome.tabs.sendMessage(tab.id, {
-      action: "SHOW_DOOMSTOPPER"
-    });
-  } catch (error) {
-    // The active tab may not have our content script.
-    console.log("Doomstopper is not active on this tab.");
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === "RESET_TIMER") {
+    startTimer();
   }
 });

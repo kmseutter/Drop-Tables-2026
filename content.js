@@ -1,10 +1,8 @@
 (function () {
 
-  // const DELAY_SECONDS = 5;
   if (window.doomstopperTimerSet) return;
   window.doomstopperTimerSet = true;
 
-  // let timerId = null;
   let quizzes = [];
 
   async function loadQuizzes() {
@@ -17,11 +15,6 @@
       console.error('Doomstopper failed to load quiz.json:', err);
     }
   }
-
-  // function startTimer() {
-  //   clearTimeout(timerId);
-  //   timerId = setTimeout(showOverlay, DELAY_SECONDS * 1000);
-  // }
 
   function showOverlay() {
     if (document.getElementById('my-ext-overlay-host')) return;
@@ -47,6 +40,7 @@
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
       host.remove();
+      chrome.runtime.sendMessage({ action: "RESET_TIMER" });
     }
 
     const host = document.createElement('div');
