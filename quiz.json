@@ -3,7 +3,7 @@
     {
       "id": 1,
       "question": "What is the capital of Canada?",
-      "choices": ["Ontario", "Edmonton", "Ottowa", "Toronto"],
+      "choices": ["Ontario", "Edmonton", "Ottawa", "Toronto"],
       "answer": 2
     },
     {
