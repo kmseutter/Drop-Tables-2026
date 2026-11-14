@@ -23,10 +23,20 @@
       ? quizzes[Math.floor(Math.random() * quizzes.length)]
       : { question: "Quizzes haven't loaded yet. Continue?", choices: ["Yes"], answer: 0 };
 
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-    const originalBodyOverflow = document.body.style.overflow;
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
+    const scrollY = window.scrollY;
+    const originalBodyStyle = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      overflowY: document.body.style.overflowY
+    };
+
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflowY = 'scroll';
 
     function preventScroll(e) {
       e.preventDefault();
@@ -35,11 +45,18 @@
     window.addEventListener('touchmove', preventScroll, { passive: false });
 
     function closeOverlay() {
-      document.documentElement.style.overflow = originalHtmlOverflow;
-      document.body.style.overflow = originalBodyOverflow;
+      document.body.style.position = originalBodyStyle.position;
+      document.body.style.top = originalBodyStyle.top;
+      document.body.style.left = originalBodyStyle.left;
+      document.body.style.right = originalBodyStyle.right;
+      document.body.style.overflowY = originalBodyStyle.overflowY;
+
       window.removeEventListener('wheel', preventScroll);
       window.removeEventListener('touchmove', preventScroll);
       host.remove();
+
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+      
       chrome.runtime.sendMessage({ action: "RESET_TIMER" });
     }
 
