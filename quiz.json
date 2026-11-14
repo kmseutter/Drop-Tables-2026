@@ -1,0 +1,16 @@
+{
+  "quizzes": [
+    {
+      "id": 1,
+      "question": "What is the capital of Canada?",
+      "choices": ["Ontario", "Edmonton", "Ottowa", "Toronto"],
+      "answer": 2
+    },
+    {
+      "id": 2,
+      "question": "Where is NAIT Located?",
+      "choices": ["Edmonton", "Calgary", "Vancouver", "Iqaluit"],
+      "answer": 0
+    }
+  ]
+}
