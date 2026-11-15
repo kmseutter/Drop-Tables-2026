@@ -35,13 +35,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action == "QUIZ_CORRECT"){
     chrome.storage.local.get({correctAnswers: 0})
-    .then(({correctAnswers}) =>
-      chrome.storage.local.set({correctAnswers: correctAnswers + 1})
-    )
-    .then(() => sendResponse({saved: true}))
+    .then(({correctAnswers}) => {
+      return chrome.storage.local.set({correctAnswers: correctAnswers + 1});
+    })
+    .then(() => {sendResponse({saved: true})})
     .catch((error) => {
       console.error('Failed to save progress:', error);
       sendResponse({saved: false});
     });
+    return true;
   }
 });

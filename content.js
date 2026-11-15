@@ -144,6 +144,32 @@
           letter-spacing: 1px;
           color: #a6adc8;
         }
+        .quiz-progress {
+          width: 100%;
+          margin-bottom: 18px;
+        }
+        .quiz-progress-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          font-size: 12px;
+          color: #a6adc8;
+        }
+        .quiz-progress-track {
+          width: 100%;
+          height: 10px;
+          background: #45475a;
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .quiz-progress-fill {
+          width: 0%;
+          height: 100%;
+          background: #a6e3a1;
+          border-radius: 999px;
+          transition: width 0.3s ease;
+        }
         button {
           background: none;
           border: none;
@@ -158,6 +184,20 @@
         <div class="header">
           <h1 class="title">Doomstopper</h1>
         </div>
+
+        <div class="quiz-progress">
+          <div class="quiz-progress-info">
+            <span id="quiz-level">Level 1</span>
+            <span id="quiz-progress-text">0 / 3</span>
+          </div>
+          <div class="quiz-progress-track">
+            <div
+              id="quiz-progress-fill"
+              class="quiz-progress-fill">
+            </div>
+          </div>
+        </div>
+
         <p>Answer the following question to continue:</p>
         <div class="question">${quiz.question}</div>
         <div class="choices">${choicesHTML}</div>
@@ -168,24 +208,48 @@
     const buttons = shadow.querySelectorAll('.choice-btn');
     const feedback = shadow.getElementById('feedback');
 
+    //Shows progress bar in page overlay
+    const QUESTIONS_PER_LEVEL = 3;
+    async function updateOverlayProgress(){
+      const {correctAnswers = 0} = await chrome.storage.local.get("correctAnswers");
+      const level = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
+      const completed = correctAnswers % QUESTIONS_PER_LEVEL;
+      const percentage = (completed / QUESTIONS_PER_LEVEL) * 100;
+
+      shadow.getElementById('quiz-level').textContent = `Level ${level}`;
+      shadow.getElementById('quiz-progress-text').textContent = `${completed} / ${QUESTIONS_PER_LEVEL}`;
+      shadow.getElementById('quiz-progress-fill').style.width =`${percentage}%`;
+    }
+    const initialProgressLoad = updateOverlayProgress().catch(console.error);
+
+    let answered = false;
     buttons.forEach((btn) => {
       btn.addEventListener('click', async () => {
+        if (answered) return; //Prevents clicking the correct button multiple times for more points
         const selectedIndex = Number(btn.getAttribute('data-index'));
 
         if (selectedIndex === quiz.answer) {
+          answered=true;
           btn.classList.add('correct');
           feedback.style.color = '#25b618';
           feedback.textContent = 'Correct! Resuming...';
 
           try {
-            await chrome.runtime.sendMessage({
-              action: "QUIZ_CORRECT"
-            });
+            const response = await chrome.runtime.sendMessage({action: "QUIZ_CORRECT"});
+            if (response?.saved){
+              await updateOverlayProgress();
+              
+            }else {
+              console.error('Progress couldn\'t be saved in overlay');
+            }
           } catch (error) {
             console.error('Failed to save progress', error);
           }
-          
-          setTimeout(closeOverlay, 600);
+          //wait for progress bar animation to finish
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log('Doomstopper: closing after animation delay')
+          closeOverlay();
+          //setTimeout(closeOverlay, 600);
         } else {
           btn.classList.add('wrong');
           feedback.textContent = 'Wrong answer — try again!';
