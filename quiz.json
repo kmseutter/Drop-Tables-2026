@@ -26,7 +26,7 @@
     },
     {
       "id": 5,
-      "question": "Since when was the Nugget NAIT's Newspaper?",
+      "question": "Since when was The Nugget NAIT's Newspaper?",
       "choices": ["1960", "1992", "2004", "1964"],
       "answer": 3
     },
@@ -41,6 +41,84 @@
       "question": "What is Canada's national animal?",
       "choices": ["The Beaver", "The Mallard", "The Moose", "The Deer"],
       "answer": 0
+    },
+    {
+      "id": 8,
+      "question": "What is the official athletic nickname and mascot of NAIT?",
+      "choices": ["The Ooks", "The Hawks", "The Grizzlies", "The Voyagers"],
+      "answer": 0
+    },
+    {
+      "id": 9,
+      "question": "What are the traditional official school colors of NAIT?",
+      "choices": ["Green and Gold", "Blue and Gold", "Red and White", "Black and Silver"],
+      "answer": 1
+    },
+    {
+      "id": 10,
+      "question": "In what year was NAIT officially founded?",
+      "choices": ["1950", "1971", "1962", "1980"],
+      "answer": 2
+    },
+    {
+      "id": 11,
+      "question": "Which Canadian province is the smallest in land area and entirely situated on an island?",
+      "choices": ["Prince Edward Island", "Nova Scotia", "Newfoundland and Labrador", "New Brunswick"],
+      "answer": 0
+    },
+    {
+      "id": 12,
+      "question": "Which iconic leaf sits at the center of the Canadian national flag?",
+      "choices": ["Oak leaf", "Birch leaf", "Pine needle cluster", "Maple leaf"],
+      "answer": 3
+    },
+        {
+      "id": 13,
+      "question": "What is 15 + 27?",
+      "choices": ["32", "42", "52", "45"],
+      "answer": 1
+    },
+    {
+      "id": 14,
+      "question": "What is 8 × 7?",
+      "choices": ["54", "64", "56", "49"],
+      "answer": 2
+    },
+    {
+      "id": 15,
+      "question": "What is 144 ÷ 12?",
+      "choices": ["12", "14", "11", "10"],
+      "answer": 0
+    },
+    {
+      "id": 16,
+      "question": "What is 25% of 80?",
+      "choices": ["15", "25", "30", "20"],
+      "answer": 3
+    },
+    {
+      "id": 17,
+      "question": "Solve for x: 2x + 5 = 19",
+      "choices": ["6", "7", "8", "12"],
+      "answer": 1
+    },
+    {
+      "id": 18,
+      "question": "What is the square root of 81?",
+      "choices": ["7", "8", "9", "18"],
+      "answer": 2
+    },
+    {
+      "id": 19,
+      "question": "What is 3/4 + 1/2?",
+      "choices": ["1 1/4", "4/6", "1", "1 1/2"],
+      "answer": 0
+    },
+    {
+      "id": 20,
+      "question": "What is the perimeter of a square with a side length of 6 cm?",
+      "choices": ["12 cm", "36 cm", "18 cm", "24 cm"],
+      "answer": 3
     }
   ]
 }
