@@ -18,12 +18,16 @@
     "tabs",
     "storage"
   ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": false
+  },
   "background": {
     "service_worker": "background.js"
   },
   "content_scripts": [
     {
-      "matches": ["https://*.wikipedia.org/*", "https://*.tiktok.com/*"],
+      "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
   ]
