@@ -1,8 +1,9 @@
-const DELAY_SECONDS = 5;
 let timerId = null;
 
-function startTimer() {
+async function startTimer() {
   clearTimeout(timerId);
+  const { delaySeconds } = await chrome.storage.local.get({ delaySeconds: 5 });
+
   timerId = setTimeout(async () => {
     const [tab] = await chrome.tabs.query({
       active: true,
@@ -21,7 +22,7 @@ function startTimer() {
     } catch (error) {
       startTimer();
     }
-  }, DELAY_SECONDS * 1000);
+  }, delaySeconds  * 1000);
 }
 
 chrome.runtime.onInstalled.addListener(startTimer);
