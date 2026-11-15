@@ -210,15 +210,20 @@
 
     //Shows progress bar in page overlay
     const QUESTIONS_PER_LEVEL = 3;
-    async function updateOverlayProgress(){
+    async function updateOverlayProgress(showCompletion = false){
       const {correctAnswers = 0} = await chrome.storage.local.get("correctAnswers");
-      const level = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
-      const completed = correctAnswers % QUESTIONS_PER_LEVEL;
+      let level = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
+      let completed = correctAnswers % QUESTIONS_PER_LEVEL;
+      if(showCompletion && correctAnswers > 0 && completed === 0){
+        level -= 1;
+        completed = QUESTIONS_PER_LEVEL;
+      }
       const percentage = (completed / QUESTIONS_PER_LEVEL) * 100;
 
       shadow.getElementById('quiz-level').textContent = `Level ${level}`;
       shadow.getElementById('quiz-progress-text').textContent = `${completed} / ${QUESTIONS_PER_LEVEL}`;
       shadow.getElementById('quiz-progress-fill').style.width =`${percentage}%`;
+      return completed === QUESTIONS_PER_LEVEL;
     }
     const initialProgressLoad = updateOverlayProgress().catch(console.error);
 
@@ -237,7 +242,15 @@
           try {
             const response = await chrome.runtime.sendMessage({action: "QUIZ_CORRECT"});
             if (response?.saved){
-              await updateOverlayProgress();
+              const levelCompleted = await updateOverlayProgress(true);
+              //show level progress updating
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              if(levelCompleted){
+                //give time for progress animations to finish
+                await new Promise(resolve => setTimeout(resolve, 700));
+                await updateOverlayProgress();
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
               
             }else {
               console.error('Progress couldn\'t be saved in overlay');
@@ -245,11 +258,8 @@
           } catch (error) {
             console.error('Failed to save progress', error);
           }
-          //wait for progress bar animation to finish
-          await new Promise(resolve => setTimeout(resolve, 1000));
-          console.log('Doomstopper: closing after animation delay')
+          
           closeOverlay();
-          //setTimeout(closeOverlay, 600);
         } else {
           btn.classList.add('wrong');
           feedback.textContent = 'Wrong answer — try again!';
