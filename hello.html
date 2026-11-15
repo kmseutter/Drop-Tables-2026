@@ -52,6 +52,24 @@
       text-align: center;
       min-height: 16px;
     }
+    ul { 
+      list-style: none;
+      padding: 0; 
+      margin: 0; }
+    li { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 6px 0; 
+      border-bottom: 1px solid #eee; 
+    }
+    button.remove-btn { 
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+      width: auto;
+    }
+
   </style>
 </head>
 <body>
@@ -61,6 +79,14 @@
   <button id="saveBtn">Save &amp; Restart Timer</button>
   <div id="status"></div>
 
+  <form id="urlForm" class="input-group">
+    <input type="url" id="urlInput" placeholder="https://example.com" required>
+    <button type="submit">Add</button>
+  </form>
+
+  <ul id="urlList"></ul>
+
   <script src="popup.js"></script>
+  <script src="options.js"></script>
 </body>
 </html>
