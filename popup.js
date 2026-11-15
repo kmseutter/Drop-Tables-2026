@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
   //Updates progress bar if saved score changes while toolbar popup open
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.correctAnswers) {
-      updateProgress(changes.correctAnswers.newValuw ?? 0);
+      updateProgress(changes.correctAnswers.newValue ?? 0);
     }
   });
 
