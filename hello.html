@@ -70,22 +70,62 @@
       width: auto;
     }
 
+    .progress-section {
+      margin-top: 20px;
+    }
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .progress-track {
+      height: 12px;
+      background: #45475a;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+      background: #a6e3a1;
+      transition: width 0.25s ease;
+    }
+    .progress-detail {
+      margin-top: 7px;
+      color: #a6adc8;
+      font-size: 12px;
+    }
   </style>
 </head>
 <body>
   <h3>Doomstopper Settings</h3>
+
+  <section class="progress-section" aria-label="Quiz progress">
+    <div class="progress-header">
+      <strong>Quiz Progress</strong>
+      <strong id="levelText">Level 1</strong>
+    </div>
+    <div class="progress-track" id="progressBarTrack" role="progressbar" aria-label="Progress toward next level"
+    aria-valuemin="0" aria-valuemax="10" aria-valuenow="0">
+      <div id="progressBar" class="progress-fill"></div>
+    </div>
+    <div id="progressText" class="progress-detail">0 / 3 to next level</div>
+    <div id="totalText" class="progress-detail"> 0 correct answers total</div>
+  </section>
+  
   <label for="delayInput">Delay (seconds):</label>
   <input type="number" id="delayInput" min="1" value="5" />
   <button id="saveBtn">Save &amp; Restart Timer</button>
   <div id="status"></div>
-
+ 
+  <label for="delayInput">Add Url:</label>
   <form id="urlForm" class="input-group">
     <input type="url" id="urlInput" placeholder="https://example.com" required>
     <button type="submit">Add</button>
   </form>
 
   <ul id="urlList"></ul>
-
   <script src="popup.js"></script>
   <script src="options.js"></script>
 </body>
