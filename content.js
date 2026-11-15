@@ -94,14 +94,6 @@
           width: 300px;
           text-align: center;
         }
-          .title {
-          font-weight: bold;
-          font-size: 14px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          color: #a6adc8;
-          margin-bottom: 8px;
-        }
         .question {
           font-size: 18px;
           font-weight: 600;
@@ -112,7 +104,7 @@
           flex-direction: column;
           gap: 8px;
         }
-          .choice-btn {
+        .choice-btn {
           background: #313244;
           border: 1px solid #45475a;
           color: #ffffff;
@@ -143,11 +135,14 @@
         }
         .header {
           display: flex;
-          justify-content: space-between;
+          justify-content: center;
           align-items: center;
           font-weight: bold;
           font-size: 18px;
           margin-bottom: 12px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          color: #a6adc8;
         }
         button {
           background: none;
@@ -161,7 +156,7 @@
 
       <div class="overlay-box">
         <div class="header">
-          <span>Doomstopper</span>
+          <h1 class="title">Doomstopper</h1>
         </div>
         <p>Answer the following question to continue:</p>
         <div class="question">${quiz.question}</div>
