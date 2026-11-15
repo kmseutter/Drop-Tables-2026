@@ -52,6 +52,24 @@
       text-align: center;
       min-height: 16px;
     }
+    ul { 
+      list-style: none;
+      padding: 0; 
+      margin: 0; }
+    li { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      padding: 6px 0; 
+      border-bottom: 1px solid #eee; 
+    }
+    button.remove-btn { 
+      cursor: pointer;
+      border: none;
+      font-weight: bold;
+      width: auto;
+    }
+
     .progress-section {
       margin-top: 20px;
     }
@@ -82,10 +100,6 @@
 </head>
 <body>
   <h3>Doomstopper Settings</h3>
-  <label for="delayInput">Delay (seconds):</label>
-  <input type="number" id="delayInput" min="1" value="5" />
-  <button id="saveBtn">Save &amp; Restart Timer</button>
-  <div id="status"></div>
 
   <section class="progress-section" aria-label="Quiz progress">
     <div class="progress-header">
@@ -99,7 +113,20 @@
     <div id="progressText" class="progress-detail">0 / 3 to next level</div>
     <div id="totalText" class="progress-detail"> 0 correct answers total</div>
   </section>
+  
+  <label for="delayInput">Delay (seconds):</label>
+  <input type="number" id="delayInput" min="1" value="5" />
+  <button id="saveBtn">Save &amp; Restart Timer</button>
+  <div id="status"></div>
+ 
+  <label for="delayInput">Add Url:</label>
+  <form id="urlForm" class="input-group">
+    <input type="url" id="urlInput" placeholder="https://example.com" required>
+    <button type="submit">Add</button>
+  </form>
 
+  <ul id="urlList"></ul>
   <script src="popup.js"></script>
+  <script src="options.js"></script>
 </body>
 </html>
