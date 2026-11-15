@@ -45,4 +45,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+
+  if (message.action === "QUIZ_WRONG") {
+    chrome.storage.local.get({ correctAnswers: 0 })
+      .then(({ correctAnswers }) => {
+        const QUESTIONS_PER_LEVEL = 3;
+        const currLevel = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
+        const prevLevel = Math.max(1, currLevel - 1);
+        const newScore = (prevLevel - 1) * QUESTIONS_PER_LEVEL;
+        return chrome.storage.local.set({correctAnswers: newScore});
+      })
+      .then(() => {
+        sendResponse({ saved: true });
+      })
+      .catch((error) => {
+        console.error('Failed to apply level penalty:', error);
+        sendResponse({ saved: false });
+      });
+  
+    return true;
+  }
 });

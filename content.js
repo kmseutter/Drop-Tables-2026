@@ -318,6 +318,7 @@
     const initialProgressLoad = updateOverlayProgress().catch(console.error);
 
     let answered = false;
+    let penaltyApplied = false;
     buttons.forEach((btn) => {
       btn.addEventListener('click', async () => {
         if (answered) return; //Prevents clicking the correct button multiple times for more points
@@ -359,7 +360,27 @@
           closeOverlay();
         } else {
           btn.classList.add('wrong');
-          feedback.textContent = 'Wrong answer — try again!';
+
+          if(!penaltyApplied){
+            penaltyApplied = true;
+
+            feedback.textContent = 'Wrong answer! -1 Level';
+            try {
+              const response = await chrome.runtime.sendMessage({
+                action: "QUIZ_WRONG"
+              });
+
+              if (response?.saved) {
+                await updateOverlayProgress();
+              } else {
+                console.error('Failed to save level penalty');
+              }
+            } catch (error) {
+              console.error('Failed to apply level penalty:', error);
+            }
+          }else{
+            feedback.textContent = 'Wrong answer — try again!';
+          }
         }
       });
     });
