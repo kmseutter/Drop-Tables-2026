@@ -11,6 +11,36 @@
       "question": "Where is NAIT Located?",
       "choices": ["Edmonton", "Calgary", "Vancouver", "Iqaluit"],
       "answer": 0
+    },
+    {
+      "id": 3,
+      "question": "When did 'Hack-a-Ton' start?",
+      "choices": ["Nov 13", "Nov 14", "Nov 15", "Nov 16"],
+      "answer": 1
+    },
+    {
+      "id": 4,
+      "question": "What year was the CAT building opened?",
+      "choices": ["2004", "2015", "2016", "2020"],
+      "answer": 2
+    },
+    {
+      "id": 5,
+      "question": "Since when was the Nugget NAIT's Newspaper?",
+      "choices": ["1960", "1992", "2004", "1964"],
+      "answer": 3
+    },
+    {
+      "id": 6,
+      "question": "What year was Canada granted Independence?",
+      "choices": ["1867", "1812", "1899", "1901"],
+      "answer": 0
+    },
+    {
+      "id": 7,
+      "question": "What is Canada's national animal?",
+      "choices": ["The Beaver", "The Mallard", "The Moose", "The Deer"],
+      "answer": 0
     }
   ]
 }
