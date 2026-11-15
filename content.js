@@ -364,7 +364,7 @@
           if(!penaltyApplied){
             penaltyApplied = true;
 
-            feedback.textContent = 'Wrong answer! -1 Level';
+            feedback.textContent = 'Wrong answer! You\'ve lost a level!';
             try {
               const response = await chrome.runtime.sendMessage({
                 action: "QUIZ_WRONG"
