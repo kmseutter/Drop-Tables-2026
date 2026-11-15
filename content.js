@@ -364,7 +364,9 @@
           if(!penaltyApplied){
             penaltyApplied = true;
 
-            feedback.textContent = 'Wrong answer! You\'ve lost a level!';
+            const { correctAnswers = 0 } = await chrome.storage.local.get("correctAnswers");
+            const currentLevel = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
+            
             try {
               const response = await chrome.runtime.sendMessage({
                 action: "QUIZ_WRONG"
@@ -372,6 +374,14 @@
 
               if (response?.saved) {
                 await updateOverlayProgress();
+
+                if(currentLevel > 1){
+                  feedback.textContent = 'Wrong answer! You\'ve lost a level!';
+                }else if (correctAnswers > 0){
+                  feedback.textContent = 'Wrong answer! Progress reset!';
+                }else{
+                  feedback.textContent = 'Wrong answer! Try again!';
+                }
               } else {
                 console.error('Failed to save level penalty');
               }
