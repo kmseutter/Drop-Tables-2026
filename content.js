@@ -144,6 +144,55 @@
           letter-spacing: 1px;
           color: #a6adc8;
         }
+        .level-up-banner {
+          display: none;
+          position: relative;
+          margin-bottom: 12px;
+          color: #f9e2af;
+          font-size: 22px;
+          font-weight: 800;
+          text-align: center;
+        }
+        .level-up-banner.show {
+          display: block;
+          animation: level-up-pop 0.45s ease-out both;
+        }
+        @keyframes level-up-pop {
+          0% {
+            opacity: 0;
+            transform: scale(0.5);
+          }
+          70% {
+            opacity: 1;
+            transform: scale(1.15);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .confetti-piece {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          width: 7px;
+          height: 11px;
+          background: var(--confetti-color);
+          pointer-events: none;
+          animation: confetti-fall 1.2s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+          0% {
+            opacity: 1;
+            transform: translate(0, 0) rotate(0deg);
+          }
+          100% {
+            opacity: 0;
+            transform:
+              translate(var(--confetti-x), var(--confetti-y))
+              rotate(540deg);
+          }
+        }
         .quiz-progress {
           width: 100%;
           margin-bottom: 18px;
@@ -185,6 +234,10 @@
           <h1 class="title">Doomstopper</h1>
         </div>
 
+        <div id="level-up-banner" class="level-up-banner">
+          🎉 Level Up!
+        </div>
+
         <div class="quiz-progress">
           <div class="quiz-progress-info">
             <span id="quiz-level">Level 1</span>
@@ -207,6 +260,43 @@
 
     const buttons = shadow.querySelectorAll('.choice-btn');
     const feedback = shadow.getElementById('feedback');
+
+    //Shows banner and confetti when level completed
+    function showLevelUp() {
+      const banner = shadow.getElementById('level-up-banner');
+      banner.classList.add('show');
+    
+      const colors = [
+        '#f9e2af',
+        '#a6e3a1',
+        '#89b4fa',
+        '#f38ba8',
+        '#cba6f7'
+      ];
+    
+      for (let i = 0; i < 24; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+    
+        piece.style.setProperty(
+          '--confetti-color',
+          colors[i % colors.length]
+        );
+        piece.style.setProperty(
+          '--confetti-x',
+          `${Math.random() * 280 - 140}px`
+        );
+        piece.style.setProperty(
+          '--confetti-y',
+          `${Math.random() * 100 + 40}px`
+        );
+    
+        piece.style.animationDelay = `${Math.random() * 0.2}s`;
+    
+        banner.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove());
+      }
+    }
 
     //Shows progress bar in page overlay
     const QUESTIONS_PER_LEVEL = 3;
@@ -244,11 +334,18 @@
             if (response?.saved){
               const levelCompleted = await updateOverlayProgress(true);
               //show level progress updating
-              await new Promise(resolve => setTimeout(resolve, 1000));
+              await new Promise(resolve => setTimeout(resolve, 500));
+
               if(levelCompleted){
+                showLevelUp();
                 //give time for progress animations to finish
-                await new Promise(resolve => setTimeout(resolve, 700));
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                //advance to next level
                 await updateOverlayProgress();
+                shadow.getElementById('level-up-banner').classList.remove('show');
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }else {
                 await new Promise(resolve => setTimeout(resolve, 500));
               }
               
