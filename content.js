@@ -169,13 +169,22 @@
     const feedback = shadow.getElementById('feedback');
 
     buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const selectedIndex = Number(btn.getAttribute('data-index'));
 
         if (selectedIndex === quiz.answer) {
           btn.classList.add('correct');
           feedback.style.color = '#25b618';
           feedback.textContent = 'Correct! Resuming...';
+
+          try {
+            await chrome.runtime.sendMessage({
+              action: "QUIZ_CORRECT"
+            });
+          } catch (error) {
+            console.error('Failed to save progress', error);
+          }
+          
           setTimeout(closeOverlay, 600);
         } else {
           btn.classList.add('wrong');

@@ -28,8 +28,20 @@ async function startTimer() {
 chrome.runtime.onInstalled.addListener(startTimer);
 chrome.runtime.onStartup.addListener(startTimer);
 
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "RESET_TIMER") {
     startTimer();
+  }
+
+  if (message.action == "QUIZ_CORRECT"){
+    chrome.storage.local.get({correctAnswers: 0})
+    .then(({correctAnswers}) =>
+      chrome.storage.local.set({correctAnswers: correctAnswers + 1})
+    )
+    .then(() => sendResponse({saved: true}))
+    .catch((error) => {
+      console.error('Failed to save progress:', error);
+      sendResponse({saved: false});
+    });
   }
 });
