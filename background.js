@@ -1,12 +1,7 @@
 let timerId = null;
-let allowedUrls = null;
-
 
 async function startTimer() {
   clearTimeout(timerId);
-  chrome.storage.sync.get({ urls: [] }, ({ urls }) => {
-    allowedUrls = urls
-  });
   const { delaySeconds } = await chrome.storage.local.get({ delaySeconds: 5 });
 
   timerId = setTimeout(async () => {
@@ -15,15 +10,7 @@ async function startTimer() {
       lastFocusedWindow: true
     });
 
-
     if (!tab?.id) {
-      startTimer();
-      return;
-    }
-
-    const parsedUrl = URL.parse(tab.url);
-
-    if (!allowedUrls.includes(parsedUrl?.hostname) || !parsedUrl){
       startTimer();
       return;
     }
