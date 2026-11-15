@@ -144,6 +144,81 @@
           letter-spacing: 1px;
           color: #a6adc8;
         }
+        .level-up-banner {
+          display: none;
+          position: relative;
+          margin-bottom: 12px;
+          color: #f9e2af;
+          font-size: 22px;
+          font-weight: 800;
+          text-align: center;
+        }
+        .level-up-banner.show {
+          display: block;
+          animation: level-up-pop 0.45s ease-out both;
+        }
+        @keyframes level-up-pop {
+          0% {
+            opacity: 0;
+            transform: scale(0.5);
+          }
+          70% {
+            opacity: 1;
+            transform: scale(1.15);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .confetti-piece {
+          position: absolute;
+          top: 0;
+          left: 50%;
+          width: 7px;
+          height: 11px;
+          background: var(--confetti-color);
+          pointer-events: none;
+          animation: confetti-fall 1.2s ease-out forwards;
+        }
+        @keyframes confetti-fall {
+          0% {
+            opacity: 1;
+            transform: translate(0, 0) rotate(0deg);
+          }
+          100% {
+            opacity: 0;
+            transform:
+              translate(var(--confetti-x), var(--confetti-y))
+              rotate(540deg);
+          }
+        }
+        .quiz-progress {
+          width: 100%;
+          margin-bottom: 18px;
+        }
+        .quiz-progress-info {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          font-size: 12px;
+          color: #a6adc8;
+        }
+        .quiz-progress-track {
+          width: 100%;
+          height: 10px;
+          background: #45475a;
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .quiz-progress-fill {
+          width: 0%;
+          height: 100%;
+          background: #a6e3a1;
+          border-radius: 999px;
+          transition: width 0.3s ease;
+        }
         button {
           background: none;
           border: none;
@@ -158,6 +233,24 @@
         <div class="header">
           <h1 class="title">Doomstopper</h1>
         </div>
+
+        <div id="level-up-banner" class="level-up-banner">
+          🎉 Level Up!
+        </div>
+
+        <div class="quiz-progress">
+          <div class="quiz-progress-info">
+            <span id="quiz-level">Level 1</span>
+            <span id="quiz-progress-text">0 / 3</span>
+          </div>
+          <div class="quiz-progress-track">
+            <div
+              id="quiz-progress-fill"
+              class="quiz-progress-fill">
+            </div>
+          </div>
+        </div>
+
         <p>Answer the following question to continue:</p>
         <div class="question">${quiz.question}</div>
         <div class="choices">${choicesHTML}</div>
@@ -168,18 +261,126 @@
     const buttons = shadow.querySelectorAll('.choice-btn');
     const feedback = shadow.getElementById('feedback');
 
+    //Shows banner and confetti when level completed
+    function showLevelUp() {
+      const banner = shadow.getElementById('level-up-banner');
+      banner.classList.add('show');
+    
+      const colors = [
+        '#f9e2af',
+        '#a6e3a1',
+        '#89b4fa',
+        '#f38ba8',
+        '#cba6f7'
+      ];
+    
+      for (let i = 0; i < 24; i++) {
+        const piece = document.createElement('span');
+        piece.className = 'confetti-piece';
+    
+        piece.style.setProperty(
+          '--confetti-color',
+          colors[i % colors.length]
+        );
+        piece.style.setProperty(
+          '--confetti-x',
+          `${Math.random() * 280 - 140}px`
+        );
+        piece.style.setProperty(
+          '--confetti-y',
+          `${Math.random() * 100 + 40}px`
+        );
+    
+        piece.style.animationDelay = `${Math.random() * 0.2}s`;
+    
+        banner.appendChild(piece);
+        piece.addEventListener('animationend', () => piece.remove());
+      }
+    }
+
+    //Shows progress bar in page overlay
+    const QUESTIONS_PER_LEVEL = 3;
+    async function updateOverlayProgress(showCompletion = false){
+      const {correctAnswers = 0} = await chrome.storage.local.get("correctAnswers");
+      let level = Math.floor(correctAnswers / QUESTIONS_PER_LEVEL) + 1;
+      let completed = correctAnswers % QUESTIONS_PER_LEVEL;
+      if(showCompletion && correctAnswers > 0 && completed === 0){
+        level -= 1;
+        completed = QUESTIONS_PER_LEVEL;
+      }
+      const percentage = (completed / QUESTIONS_PER_LEVEL) * 100;
+
+      shadow.getElementById('quiz-level').textContent = `Level ${level}`;
+      shadow.getElementById('quiz-progress-text').textContent = `${completed} / ${QUESTIONS_PER_LEVEL}`;
+      shadow.getElementById('quiz-progress-fill').style.width =`${percentage}%`;
+      return completed === QUESTIONS_PER_LEVEL;
+    }
+    const initialProgressLoad = updateOverlayProgress().catch(console.error);
+
+    let answered = false;
+    let penaltyApplied = false;
     buttons.forEach((btn) => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
+        if (answered) return; //Prevents clicking the correct button multiple times for more points
         const selectedIndex = Number(btn.getAttribute('data-index'));
 
         if (selectedIndex === quiz.answer) {
+          answered=true;
           btn.classList.add('correct');
           feedback.style.color = '#25b618';
           feedback.textContent = 'Correct! Resuming...';
-          setTimeout(closeOverlay, 600);
+
+          try {
+            const response = await chrome.runtime.sendMessage({action: "QUIZ_CORRECT"});
+            if (response?.saved){
+              const levelCompleted = await updateOverlayProgress(true);
+              //show level progress updating
+              await new Promise(resolve => setTimeout(resolve, 500));
+
+              if(levelCompleted){
+                showLevelUp();
+                //give time for progress animations to finish
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                //advance to next level
+                await updateOverlayProgress();
+                shadow.getElementById('level-up-banner').classList.remove('show');
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }else {
+                await new Promise(resolve => setTimeout(resolve, 500));
+              }
+              
+            }else {
+              console.error('Progress couldn\'t be saved in overlay');
+            }
+          } catch (error) {
+            console.error('Failed to save progress', error);
+          }
+          
+          closeOverlay();
         } else {
           btn.classList.add('wrong');
-          feedback.textContent = 'Wrong answer — try again!';
+
+          if(!penaltyApplied){
+            penaltyApplied = true;
+
+            feedback.textContent = 'Wrong answer! You\'ve lost a level!';
+            try {
+              const response = await chrome.runtime.sendMessage({
+                action: "QUIZ_WRONG"
+              });
+
+              if (response?.saved) {
+                await updateOverlayProgress();
+              } else {
+                console.error('Failed to save level penalty');
+              }
+            } catch (error) {
+              console.error('Failed to apply level penalty:', error);
+            }
+          }else{
+            feedback.textContent = 'Wrong answer — try again!';
+          }
         }
       });
     });
